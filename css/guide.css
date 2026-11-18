@@ -26,9 +26,9 @@
   .cm { color: #6f8aa8; } .kw { color: #ff9ac8; } .nm { color: #ffd37a; }
   .codebar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .lines { display: grid; gap: 6px; }
-  .lines div { display: grid; grid-template-columns: minmax(0, 17em) 1fr; gap: 10px; background: var(--raised); border-radius: 8px; padding: 8px 10px; }
+  .lines > div:not(.step) { display: grid; grid-template-columns: minmax(0, 17em) 1fr; gap: 10px; background: var(--raised); border-radius: 8px; padding: 8px 10px; }
   .lines code { font-family: var(--f-hud); font-size: 0.8rem; color: var(--cyan); overflow-wrap: anywhere; }
-  @media (max-width: 640px) { .lines div { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .lines > div:not(.step) { grid-template-columns: 1fr; } }
   /* virtual PAPI */
   .sim { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 700px) { .sim { grid-template-columns: 1fr; } }
@@ -52,3 +52,8 @@
   table.parts { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
   .parts th, .parts td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
   .parts th { background: var(--raised); }
+
+.vrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.vpart { margin: 0; background: #0b1626; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 8px; display: grid; justify-items: center; gap: 2px; text-align: center; font-size: 0.72rem; min-width: 96px; }
+.vpart figcaption span { color: var(--dim); font-size: 0.66rem; }
+.wsvg { max-width: 100%; height: auto; background: #0b1626; border-radius: 8px; }
