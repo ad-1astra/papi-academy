@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teacher Guide · PAPI Mission 02</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/academy.css">
+<style>
+  body { overflow-y: auto; background: var(--bg); }
+  article { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; display: grid; gap: 14px; }
+  h1 { font-family: var(--f-display); font-size: 2rem; }
+  h2 { font-family: var(--f-display); font-size: 1.3rem; margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
+  h3 { font-size: 1.05rem; color: var(--cyan); }
+  p, li { color: var(--fg); max-width: 72ch; }
+  ul, ol { padding-left: 1.3em; display: grid; gap: 4px; }
+  .ans { border-left: 3px solid var(--green); padding-left: 12px; color: var(--dim); }
+  .ans b { color: var(--green); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--raised); }
+  pre { margin: 0; background: #050d18; border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; font-family: var(--f-hud); font-size: 0.78rem; line-height: 1.5; color: #d6e6f7; }
+  code { font-family: var(--f-hud); font-size: 0.85em; color: var(--cyan); }
+  @media print { body { background: #fff; } * { color: #000 !important; } pre { background: #f4f4f4; } }
+</style>
+</head>
+<body>
+<article>
+  <a class="ac-btn ghost small" href="index.html" style="justify-self: start">← Back to the hub</a>
+  <h1>Teacher Guide · Mission 02 · PAPI Runway Approach Lights</h1>
+  <p>Learners are 15, they would rather not do electronics, and they must still learn it. The plan: <b>win first, build second</b>. They play PAPI Pilot (20 min) so the lights already mean something. Then they build the same lights in Tinkercad (40 min) and check the circuit against the game. Every answer is here.</p>
+
+  <h2>Setting up the room</h2>
+  <ul>
+    <li>Open the hub on each device, add one player per student, and tap a name before they play. Progress is saved in that browser only.</li>
+    <li>Pairs work best: one plays (or builds), one reads the HUD/Serial numbers aloud, then swap each mission.</li>
+    <li>Each student needs a free Tinkercad account (tinkercad.com, “Circuits”). If you cannot sign up in class, create a class and share the join code.</li>
+    <li>Suggested 90 min: 5 min hook · 20 min PAPI Pilot (missions 1–3) · 40 min Tinkercad build · 10 min test it and Wire Doctor · 10 min Test Arena quiz · 5 min review.</li>
+    <li>Hook line: “Pilots land in the dark with no instruments but four lights. Today you play the pilot, then you become the electrician who builds them.”</li>
+  </ul>
+
+  <h2>Game: what each mission teaches</h2>
+  <table>
+    <tr><th>Mission</th><th>Concept from the notes</th><th>What the student does</th></tr>
+    <tr><td>PAPI Pilot · 1 Turn the Knob</td><td>Potentiometer as voltage divider, analogRead 0–1023, angle = raw × 6 ÷ 1023, UNIT_ANGLE thresholds</td><td>Turns the knob to make the lights show 3 white, 1 white, then 2 white. Learns each band is 0.33° wide.</td></tr>
+    <tr><td>PAPI Pilot · 2 Trig Check</td><td>tan θ = opposite ÷ adjacent; height = distance × tan 3°</td><td>Calculates the height for 3 km, 1 km and 500 m (paper first), flies to it, and the lights prove it.</td></tr>
+    <tr><td>PAPI Pilot · 3 Fly the Approach</td><td>White on white = high, red on red = too low, slope ≈ 3°, ≈ 3.1 m/s descent at 60 m/s</td><td>Reads the lights live and holds 2 white + 2 red to touch down on the runway.</td></tr>
+    <tr><td>PAPI Pilot · 4 Gusty Night Landing</td><td>Why the slope matters (too steep / too shallow), reacting gently to feedback</td><td>Starts too low (all red), climbs onto the slope in turbulence and lands at night.</td></tr>
+  </table>
+  <p>The game uses the same angles (3.50, 3.17, 2.83, 2.50) and the same scaling as the Arduino code, so what they learn in the game is exactly what the Tinkercad circuit does.</p>
+
+  <h2>Tinkercad build: why every connection exists (teacher notes)</h2>
+  <table>
+    <tr><th>Connection</th><th>Why (say it in teenager)</th></tr>
+    <tr><td>Arduino 5V → + rail, GND → − rail</td><td>Every circuit is a loop. The rails are a motorway so every part can join.</td></tr>
+    <tr><td>Pot terminals → 5V and GND</td><td>The track needs 5 V at one end and 0 V at the other, otherwise the wiper has nothing to divide.</td></tr>
+    <tr><td>Pot wiper → A0</td><td>The wiper voltage is the “angle”. A0 is the only kind of pin that measures voltage.</td></tr>
+    <tr><td>Pin → resistor → LED anode</td><td>The pin pushes 5 V out. The resistor stops too much current from killing the LED. The anode is the “in” leg.</td></tr>
+    <tr><td>LED cathode → − rail</td><td>Current must be able to leave, or the loop is broken and the LED stays dark.</td></tr>
+    <tr><td>Resistor straddles the middle gap</td><td>The two halves of the breadboard are not connected. The resistor is the bridge.</td></tr>
+    <tr><td>White on even pins, red on odd</td><td>Regular pattern means arrays and one for-loop control all 8 LEDs.</td></tr>
+  </table>
+
+  <h2 id="answers">Answers</h2>
+
+  <h3>What the circuit should do (use this to check a student’s build)</h3>
+  <table>
+    <tr><th>Lights</th><th>Angle</th><th>analogRead</th><th>Pot voltage</th><th>Serial Monitor</th></tr>
+    <tr><td>0 white (4 red)</td><td>≤ 2.50°</td><td>0–426</td><td>0 – 2.08 V</td><td>TOO LOW</td></tr>
+    <tr><td>1 white (unit 4)</td><td>2.50°–2.83°</td><td>427–482</td><td>2.09 – 2.36 V</td><td>SLIGHTLY LOW</td></tr>
+    <tr><td>2 white (units 3, 4)</td><td>2.83°–3.17°</td><td>483–540</td><td>2.36 – 2.64 V</td><td>ON SLOPE</td></tr>
+    <tr><td>3 white (units 2, 3, 4)</td><td>3.17°–3.50°</td><td>541–596</td><td>2.64 – 2.92 V</td><td>SLIGHTLY HIGH</td></tr>
+    <tr><td>4 white</td><td>&gt; 3.50°</td><td>597–1023</td><td>2.92 – 5 V</td><td>TOO HIGH</td></tr>
+  </table>
+  <p class="ans"><b>Half way:</b> 2.5 V → analogRead ≈ 512 → angle = 512 × 6 ÷ 1023 ≈ 3.00°. The knob at half way is exactly on the slope.</p>
+
+  <h3>Quick quiz (from the notes)</h3>
+  <ol>
+    <li>What does a pilot see when they are well below the glide slope?<br><span class="ans"><b>Mostly or all red lights</b> (“red on red, you’re dead”). They are too low and must climb.</span></li>
+    <li>A potentiometer wiper reads 2.5 V. What does analogRead return?<br><span class="ans"><b>About 512</b> (half of 1023).</span></li>
+    <li>Why do we put the pin numbers in arrays?<br><span class="ans"><b>So a for-loop can control all four units with the same code.</b> White pins are always even (2, 4, 6, 8) and red pins odd (3, 5, 7, 9).</span></li>
+  </ol>
+
+  <h3>Theory: how high should I be?</h3>
+  <p class="ans"><b>height = distance × tan 3° (tan 3° = 0.0524)</b><br>3 km: 3000 × 0.0524 ≈ <b>157 m</b><br>1 km: 1000 × 0.0524 ≈ <b>52 m</b><br>500 m: 500 × 0.0524 ≈ <b>26 m</b><br>Pilot’s rule of thumb: ≈ 300 ft per nautical mile (gives the same answer).<br>ADC resolution: 6° ÷ 1023 ≈ 0.006° per step, much finer than the 0.33° gap between units.</p>
+
+  <h3>Test Arena (Mission 02 test)</h3>
+  <p>15 questions. Full explanations show after each answer, so no separate key is needed. Correct options are: p-adc “About 512”, p-trig “About 157 m”.</p>
+
+  <h3>Questions to ask while they play / build</h3>
+  <ol>
+    <li>Why does one LED of each unit need to be OFF when the other is ON?<br><span class="ans">A PAPI unit shows one colour at a time: above its angle = white, below = red. The code writes the opposite value to the red pin.</span></li>
+    <li>Why do the units change one at a time, and which goes first as the angle rises?<br><span class="ans">Each has its own angle. Unit 4 (2.50°) turns white first, then unit 3, 2 and 1.</span></li>
+    <li>What happens at 3.00° and at 3.40°?<br><span class="ans">3.00°: 2 white (ON SLOPE). 3.40°: 3 white (SLIGHTLY HIGH).</span></li>
+    <li>Why not 4 identical angles?<br><span class="ans">Then all four would flip at once; the spacing gives a graded warning, so the pilot knows how far off the slope they are.</span></li>
+    <li>Before Trig Check: what height at 1 km?<br><span class="ans">52 m (not 157 m).</span></li>
+  </ol>
+
+  <h3>Boss level solutions</h3>
+  <p><b>Boss 1 · Buzzer.</b> Add a Piezo: one pin to D10, the other to GND. Delete <code>delay(200);</code> at the end of <code>loop()</code> and replace it with:</p>
+<pre>const int BUZZER = 10;        // put this near the top
+// in setup(): pinMode(BUZZER, OUTPUT);
+
+// at the end of loop(), instead of delay(200):
+float error = abs(angle - 3.0);                 // how far from the slope
+if (error < 0.17) {
+  noTone(BUZZER);                               // on slope: silence
+  delay(200);
+} else {
+  int gap = map(constrain(error * 100, 17, 300), 17, 300, 500, 60);  // far = fast beeps
+  tone(BUZZER, 880, 40);
+  delay(gap);
+}</pre>
+  <p class="ans">Checks: on slope is silent; at 0° or 6° the beeps are fast. The further from 3°, the shorter the delay.</p>
+
+  <p><b>Boss 2 · map() and whole numbers (tenths of a degree).</b></p>
+<pre>const int UNIT_TENTHS[4] = {35, 32, 28, 25};    // 3.5, 3.2, 2.8, 2.5 degrees
+// in loop():
+int raw = analogRead(GLIDE_KNOB);
+int tenths = map(raw, 0, 1023, 0, 60);          // 0..60 = 0.0 to 6.0 degrees
+for (int i = 0; i < 4; i++) {
+  bool above = tenths > UNIT_TENTHS[i];
+  digitalWrite(WHITE_PIN[i], above ? HIGH : LOW);
+  digitalWrite(RED_PIN[i],   above ? LOW : HIGH);
+}
+Serial.print(tenths / 10); Serial.print("."); Serial.println(tenths % 10);</pre>
+  <p class="ans">Half way (raw 512) gives 30 tenths = 3.0°: 2 white. The thresholds are rounded to the nearest tenth, so the on-slope band is 2.9° to 3.2° in this version. That is the trade-off for using whole numbers.</p>
+
+  <p><b>Boss 3 · Height coach.</b></p>
+<pre>// put this in loop() after the existing prints
+float distance = 1000;                                   // metres, try 3000, 1000, 500
+float height = distance * tan(3.0 * PI / 180.0);          // tan works in radians
+Serial.print("Correct height at "); Serial.print(distance, 0);
+Serial.print(" m = "); Serial.print(height, 1); Serial.println(" m");</pre>
+  <p class="ans">Prints 157.2 m at 3000 m, 52.4 m at 1000 m, 26.2 m at 500 m. Degrees × π ÷ 180 converts to radians.</p>
+
+  <h3>Common mistakes (also in the student Wire Doctor)</h3>
+  <ul>
+    <li>All LEDs dark: rail not wired to GND. One LED dark: backwards. LED “explodes”: no resistor.</li>
+    <li>Lights never respond: wiper wire on an end terminal instead of the middle pin, or on A1.</li>
+    <li>Wrong colour order: white/red swapped between even/odd pins.</li>
+    <li>Code errors: pasted over only part of the old code. Select all first, and use Text mode, not Blocks.</li>
+  </ul>
+
+  <h2>Hosting and saving</h2>
+  <p>Student progress (stars, XP, build ticks) lives in each browser’s localStorage. It does not follow the student between devices.</p>
+</article>
+</body>
+</html>

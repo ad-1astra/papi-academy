@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build the PAPI in Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/academy.css">
+<style>
+  body { overflow-y: auto; background: var(--bg); }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 18px 16px 80px; display: grid; gap: 16px; }
+  h1 { font-family: var(--f-display); font-size: clamp(1.7rem, 5vw, 2.5rem); }
+  h1 em { color: var(--cyan); font-style: normal; }
+  h2 { font-family: var(--f-display); font-size: 1.35rem; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h2 small { font-family: var(--f-hud); font-size: 0.7rem; color: var(--magenta); letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  p, li { max-width: 72ch; }
+  .lead { color: var(--dim); font-size: 1.05rem; }
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); padding: 14px; display: grid; gap: 8px; }
+  .why { border-left: 3px solid var(--magenta); padding-left: 10px; color: var(--fg); }
+  .why b { color: var(--magenta); }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; }
+  .step input[type=checkbox], .wire input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); margin-top: 3px; }
+  .step.done, .wire.done { opacity: 0.62; }
+  .step h3 { font-size: 1.05rem; }
+  .step .body { display: grid; gap: 6px; }
+  .tag { display: inline-block; font-family: var(--f-hud); font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); }
+  .wire { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--raised); }
+  .wire .path { font-weight: 700; }
+  .wire .path span { color: var(--cyan); }
+  .wire .path i { color: var(--amber); font-style: normal; font-family: var(--f-hud); font-size: 0.8rem; }
+  .wire .y { grid-column: 2; color: var(--dim); font-size: 0.92rem; }
+  .group { font-family: var(--f-hud); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-top: 8px; }
+  pre { margin: 0; background: #050d18; border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; font-family: var(--f-hud); font-size: 0.8rem; line-height: 1.5; color: #d6e6f7; }
+  .cm { color: #6f8aa8; } .kw { color: #ff9ac8; } .nm { color: #ffd37a; }
+  .codebar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lines { display: grid; gap: 6px; }
+  .lines div { display: grid; grid-template-columns: minmax(0, 17em) 1fr; gap: 10px; background: var(--raised); border-radius: 8px; padding: 8px 10px; }
+  .lines code { font-family: var(--f-hud); font-size: 0.8rem; color: var(--cyan); overflow-wrap: anywhere; }
+  @media (max-width: 640px) { .lines div { grid-template-columns: 1fr; } }
+  /* virtual PAPI */
+  .sim { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 700px) { .sim { grid-template-columns: 1fr; } }
+  .units { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .u { display: grid; gap: 6px; justify-items: center; background: var(--raised); border-radius: 8px; padding: 8px 4px; font-family: var(--f-hud); font-size: 0.7rem; color: var(--dim); }
+  .u i { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #0008; background: #3a2a2a; transition: 0.1s; }
+  .u i.w.on { background: #fff; box-shadow: 0 0 14px 4px #fffa; }
+  .u i.r.on { background: #ff2a1a; box-shadow: 0 0 14px 4px #ff2a1a88; }
+  .u i.w { background: #2a3038; } .u i.r { background: #3a1d1b; }
+  .u i.w.on, .u i.r.on { border-color: transparent; }
+  input[type=range] { width: 100%; accent-color: var(--cyan); }
+  .serial { background: #050d18; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--f-hud); font-size: 0.74rem; line-height: 1.5; height: 150px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; color: #b8f1c5; }
+  .doc { border: 1px solid var(--line); border-radius: 8px; background: var(--raised); }
+  .doc summary { cursor: pointer; padding: 10px 12px; font-weight: 700; }
+  .doc div { padding: 0 12px 12px; color: var(--dim); }
+  .doc div b { color: var(--green); }
+  .boss { border-color: var(--amber); }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .progressbar { height: 8px; border-radius: 4px; background: var(--raised); overflow: hidden; }
+  .progressbar i { display: block; height: 100%; width: 0; background: var(--green); transition: width 0.25s; }
+  table.parts { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  .parts th, .parts td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  .parts th { background: var(--raised); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav">
+    <a class="ac-btn ghost small" href="index.html">← Academy hub</a>
+    <a class="ac-btn ghost small" href="papi.html">Play PAPI Pilot first</a>
+    <a class="ac-btn ghost small" href="teacher.html#answers">Teacher guide</a>
+  </div>
+
+  <header class="card" style="background: linear-gradient(135deg, #102540, var(--bg)); padding: 22px">
+    <span class="mono dim">MSN 02 · BEGINNER · ABOUT 40 MIN</span>
+    <h1>You are the airport electrician.<br><em>Build the lights that save planes.</em></h1>
+    <p class="lead">In the game you flew by reading 4 lights. Now you build those exact 4 lights, plus a knob that pretends to be the aircraft, using an Arduino in Tinkercad. At the end, your circuit will print the same angle and verdict that the game shows.</p>
+    <div class="progressbar" aria-label="Build progress"><i id="bar"></i></div>
+    <span class="mono dim" id="barTxt">0 of 0 steps done</span>
+  </header>
+
+  <h2><small>Before you start</small>What you need (all free in Tinkercad)</h2>
+  <div class="card">
+    <p>Go to <b>tinkercad.com → Circuits → Create new Circuit</b> and name it <b>MSN02 PAPI</b>. In the parts panel (right side) use the search box to find each part:</p>
+    <table class="parts">
+      <tr><th>Search for…</th><th>How many</th><th>Its job</th></tr>
+      <tr><td><b>Arduino Uno R3</b></td><td>1</td><td>The brain. It reads the knob and decides every light colour.</td></tr>
+      <tr><td><b>Breadboard Small</b></td><td>1</td><td>A plug-in board so you do not need to solder.</td></tr>
+      <tr><td><b>Potentiometer</b></td><td>1</td><td>The knob. It acts as the aircraft’s angle.</td></tr>
+      <tr><td><b>LED</b> (set colour to White)</td><td>4</td><td>The “too high” half of each PAPI unit.</td></tr>
+      <tr><td><b>LED</b> (set colour to Red)</td><td>4</td><td>The “too low” half of each PAPI unit.</td></tr>
+      <tr><td><b>Resistor</b> (set to 220 Ω)</td><td>8</td><td>One bodyguard per LED. They limit current.</td></tr>
+    </table>
+    <p class="why"><b>Tip:</b> click a part once it is on the grid and a small box lets you change its colour or resistance. Resistor: type 220 in the Resistance box.</p>
+  </div>
+
+  <h2><small>Part 1</small>Build it, one step at a time</h2>
+  <p class="lead">Tick each box as you finish. It saves on this device, so you can leave and come back.</p>
+  <div id="steps" class="lines" style="gap: 10px"></div>
+
+  <h2><small>Part 2</small>Every wire, and why it is there</h2>
+  <p class="lead">Hover over a pin in Tinkercad to see its name. Tick each wire when it is drawn. Read the “why”, because every wire has a reason.</p>
+  <div id="wires" style="display: grid; gap: 8px"></div>
+
+  <h2><small>Part 3</small>The code (copy and paste)</h2>
+  <div class="card">
+    <ol style="padding-left: 1.2em; display: grid; gap: 4px;">
+      <li>In Tinkercad click the <b>Code</b> button (top right).</li>
+      <li>Change the drop-down from <b>Blocks</b> to <b>Text</b>. Click <b>Continue</b> when it warns you.</li>
+      <li>Click inside the code box, press <kbd>Ctrl</kbd>+<kbd>A</kbd> to select everything, then <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste over it.</li>
+    </ol>
+    <div class="codebar"><button class="ac-btn" id="copy" type="button">Copy the code</button><span class="mono dim" id="copied" aria-live="polite"></span></div>
+<pre id="code"><span class="cm">/* MSN 02 - PAPI Runway Approach Lights
+   The knob is the aircraft's glide angle. Four units, each with a white and a red LED. */</span>
+
+<span class="kw">const int</span> GLIDE_KNOB = A0;                  <span class="cm">// potentiometer wiper</span>
+<span class="kw">const int</span> WHITE_PIN[4] = {2, 4, 6, 8};      <span class="cm">// white LEDs: unit 1, 2, 3, 4</span>
+<span class="kw">const int</span> RED_PIN[4]   = {3, 5, 7, 9};      <span class="cm">// red LEDs:   unit 1, 2, 3, 4</span>
+
+<span class="cm">// Unit 1 is nearest the runway. Each unit turns WHITE once you are above its own angle.</span>
+<span class="kw">const float</span> UNIT_ANGLE[4] = {3.50, 3.17, 2.83, 2.50};
+
+<span class="kw">void</span> setup() {
+  Serial.begin(9600);                      <span class="cm">// open the Serial Monitor line</span>
+  <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; 4; i++) {
+    pinMode(WHITE_PIN[i], OUTPUT);
+    pinMode(RED_PIN[i], OUTPUT);
+  }
+}
+
+<span class="kw">void</span> loop() {
+  <span class="kw">int</span> raw = analogRead(GLIDE_KNOB);          <span class="cm">// 0 to 1023</span>
+  <span class="kw">float</span> angle = raw * (6.0 / 1023.0);        <span class="cm">// 0 to 6 degrees</span>
+  <span class="kw">int</span> whiteCount = 0;
+
+  <span class="kw">for</span> (<span class="kw">int</span> i = 0; i &lt; 4; i++) {
+    <span class="kw">bool</span> above = angle &gt; UNIT_ANGLE[i];      <span class="cm">// am I higher than this unit's angle?</span>
+    digitalWrite(WHITE_PIN[i], above ? HIGH : LOW);
+    digitalWrite(RED_PIN[i],   above ? LOW : HIGH);
+    <span class="kw">if</span> (above) whiteCount++;
+  }
+
+  Serial.print(<span class="nm">"Angle: "</span>);
+  Serial.print(angle, 2);
+  Serial.print(<span class="nm">" deg | white lights: "</span>);
+  Serial.print(whiteCount);
+  Serial.print(<span class="nm">" | "</span>);
+
+  <span class="kw">if</span> (whiteCount == 4)      Serial.println(<span class="nm">"TOO HIGH - white on white, check your height"</span>);
+  <span class="kw">else if</span> (whiteCount == 3) Serial.println(<span class="nm">"SLIGHTLY HIGH"</span>);
+  <span class="kw">else if</span> (whiteCount == 2) Serial.println(<span class="nm">"ON SLOPE"</span>);
+  <span class="kw">else if</span> (whiteCount == 1) Serial.println(<span class="nm">"SLIGHTLY LOW"</span>);
+  <span class="kw">else</span>                      Serial.println(<span class="nm">"TOO LOW - red on red, you're dead"</span>);
+
+  delay(200);                              <span class="cm">// 5 updates per second</span>
+}</pre>
+    <p class="why"><b>Pasted but errors?</b> Make sure you selected <b>all</b> the old code before pasting, and that the editor says <b>Text</b>, not Blocks.</p>
+  </div>
+
+  <h3 style="font-family: var(--f-display); margin-top: 8px">What each important line does</h3>
+  <div class="lines">
+    <div><code>const float UNIT_ANGLE[4]</code><span>An array: four numbers under one name. Each PAPI unit has its own angle, so together they make a ruler for the slope.</span></div>
+    <div><code>analogRead(GLIDE_KNOB)</code><span>Measures the voltage on A0 and gives a number from 0 (0 V) to 1023 (5 V).</span></div>
+    <div><code>raw * (6.0 / 1023.0)</code><span>Scales 0–1023 into 0–6°. Double the reading, double the angle. That is direct proportion from maths.</span></div>
+    <div><code>for (int i = 0; i &lt; 4; i++)</code><span>Repeats the same instructions for units 0, 1, 2, 3. In ICT this is called iteration. 4 units, 1 loop, no copy-paste.</span></div>
+    <div><code>above ? HIGH : LOW</code><span>Short if/else. If <b>above</b> is true give HIGH (LED on), otherwise LOW (LED off).</span></div>
+    <div><code>RED... above ? LOW : HIGH</code><span>The red is the opposite of the white. Exactly one of the pair is on at any time, like a real PAPI.</span></div>
+    <div><code>Serial.print(angle, 2)</code><span>Prints the angle with 2 decimal places in the Serial Monitor.</span></div>
+  </div>
+
+  <h2><small>Part 4</small>Practice: what your circuit should do</h2>
+  <p class="lead">This is a mini copy of your circuit running the same code. Drag the knob and watch. When your Tinkercad build does the same thing, you have it right.</p>
+  <div class="card sim">
+    <div style="display: grid; gap: 10px">
+      <label for="knob"><b>Knob</b> · analogRead = <span class="mono" id="rawV">512</span> · <span class="mono" id="voltV">2.50 V</span></label>
+      <input id="knob" type="range" min="0" max="1023" value="512" aria-label="Potentiometer knob">
+      <div class="units" id="units"></div>
+      <p class="mono" id="verdict" style="font-weight: 700"></p>
+    </div>
+    <div>
+      <div class="mono dim" style="font-size: 0.7rem; margin-bottom: 4px">SERIAL MONITOR (what you should see)</div>
+      <div class="serial" id="serial"></div>
+    </div>
+  </div>
+
+  <h2><small>Part 5</small>Run it and test it</h2>
+  <div class="card">
+    <ol style="padding-left: 1.2em; display: grid; gap: 6px;">
+      <li>Click <b>Start Simulation</b>. Then click <b>Serial Monitor</b> at the bottom of the code panel.</li>
+      <li>Click the potentiometer once. A small slider pops up. Drag it slowly.</li>
+      <li><b>Fully one way:</b> all four units show red (TOO LOW). <b>Fully the other way:</b> all four show white (TOO HIGH).</li>
+      <li><b>Around the middle:</b> 2 white + 2 red, angle about 2.9° to 3.1°, and the monitor says <b>ON SLOPE</b>.</li>
+      <li>Watch the units flip one at a time, <b>starting with unit 4</b>.</li>
+    </ol>
+  </div>
+
+  <h2><small>Part 6</small>Wire Doctor: fix the fault</h2>
+  <p class="lead">Something went wrong? Open the symptom that matches yours. Tap to reveal the cause and the fix.</p>
+  <div id="doctor" style="display: grid; gap: 8px"></div>
+
+  <h2><small>Part 7</small>Boss levels</h2>
+  <div class="card boss">
+    <h3>Boss 1 · The alarm</h3><p>Add a <b>Piezo</b> buzzer that beeps faster the further you are from 3°. (Hint: you need <code>abs(angle - 3.0)</code>, and <code>tone()</code>.)</p>
+    <h3>Boss 2 · No decimals</h3><p>Rewrite the code with <code>map()</code> and whole numbers in tenths of a degree (0–60) instead of floats.</p>
+    <h3>Boss 3 · Height coach</h3><p>Use your trig. Work out the correct height at 1 km and at 500 m. Make the Serial Monitor print the “correct height” for a fixed distance.</p>
+    <p class="why"><b>Stuck?</b> Your teacher has the solutions. Try it for 10 minutes first!</p>
+  </div>
+
+  <div class="nav" style="margin-top: 16px"><a class="ac-btn" href="arena.html#w2">Take the Mission 02 test</a><a class="ac-btn ghost" href="teacher.html#answers">Teacher guide + answers</a></div>
+</div>
+
+<script src="js/papi-model.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'papi-build-v1';
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+  const store = () => { try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {} };
+
+  const steps = [
+    ['Start from a fresh circuit', 'Create a new circuit called MSN02 PAPI. Drag in an Arduino Uno R3 and a Breadboard Small.', 'A clean start keeps the pin numbers simple. This mission uses eight output pins, and one mistake in a messy circuit takes ages to find.'],
+    ['Wire the power rails', 'Draw a RED wire from Arduino 5V to the breadboard + rail (the red-marked strip). Draw a BLACK wire from Arduino GND to the − rail (blue strip).', 'Electricity needs a loop: out of 5V, through a part, back to GND. The rails are like a motorway: every part joins at a convenient exit. The potentiometer also needs 5 V and 0 V on both ends.'],
+    ['Add the potentiometer', 'Place a Potentiometer near the left. Terminal 1 → + rail (5V). Terminal 2 → − rail (GND). Middle pin (wiper) → Arduino A0.', 'The wiper slides along a resistive track. At one end it is 0 V, at the other 5 V, and in between you get a proportional voltage. That is the voltage divider from physics, and A0 measures it.'],
+    ['Build the first PAPI unit', 'Place a white LED and a red LED side by side. For each LED, draw a short BLACK wire from the cathode (flat side / short leg) column to the − rail. Put a 220 Ω resistor from the anode column across the middle gap of the breadboard.', 'LEDs only work one way round. The anode (+) takes the current in; the cathode (−) lets it out to ground. The resistor bridges the middle gap because the two halves of the board are not connected: the resistor is the bridge your signal crosses.'],
+    ['Copy it three more times', 'Make four units in a line: white, red, white, red, white, red, white, red. Same wiring each time. Use Ctrl+C / Ctrl+V to copy a pair if you like.', 'Real airports use four identical units. If unit 1 works, copying it is much faster than rebuilding it, and your code will treat them all the same.'],
+    ['Wire the LEDs to pins D2–D9', 'Unit 1: white → D2, red → D3. Unit 2: white → D4, red → D5. Unit 3: white → D6, red → D7. Unit 4: white → D8, red → D9. Wire from the Arduino pin to the bottom half of the resistor’s column.', 'White is always the EVEN pin, red is always ODD. This regular pattern lets the code keep the pins in arrays and use a loop. Messy wiring = messy code.'],
+    ['Paste the code', 'Code → Text → select everything → paste the program from Part 3.', 'Hardware is only half the job. The code is the brain that says “above 2.83°? then turn this LED white”.'],
+    ['Start the simulation and open the Serial Monitor', 'Click Start Simulation, then Serial Monitor. Click the potentiometer and drag the slider slowly.', 'The Serial Monitor is your pilot’s instrument panel. It prints the angle, so you can see whether the lights change at the right moment.'],
+    ['Fly an approach', 'Turn the knob until you see 2 white and 2 red. The monitor should read about 2.9 to 3.1° and say ON SLOPE.', 'This is exactly the picture a pilot keeps in view all the way down to the runway. You just built it.'],
+  ];
+  const wires = [
+    ['Power', 'Arduino 5V', 'Breadboard + rail', '', 'Supplies 5 V to every part that needs power. Use a red wire.'],
+    ['Power', 'Arduino GND', 'Breadboard − rail', '', 'The return path that closes every loop. Use a black wire.'],
+    ['Knob', 'Potentiometer Terminal 1', '+ rail (5V)', '', 'Puts 5 V on one end of the track.'],
+    ['Knob', 'Arduino A0', 'Potentiometer Wiper', '', 'Analog input: the sensor voltage is measured here. The wiper is the middle pin.'],
+    ['Knob', 'Potentiometer Terminal 2', '− rail (GND)', '', 'Puts 0 V on the other end, so the wiper can sweep from 0 to 5 V.'],
+  ];
+  const pins = [['Unit 1 white', 'D2'], ['Unit 1 red', 'D3'], ['Unit 2 white', 'D4'], ['Unit 2 red', 'D5'], ['Unit 3 white', 'D6'], ['Unit 3 red', 'D7'], ['Unit 4 white', 'D8'], ['Unit 4 red', 'D9']];
+  pins.forEach(([n, p], i) => {
+    wires.push(['Unit ' + (Math.floor(i / 2) + 1), 'Arduino ' + p, n + ' Anode', '220 Ω', 'Output pin through a current-limiting resistor. The pin gives 5 V (HIGH) to turn the LED on, 0 V (LOW) to turn it off.']);
+    wires.push(['Unit ' + (Math.floor(i / 2) + 1), n + ' Cathode', '− rail (GND)', '', 'Return path to ground. Without it the current has nowhere to go, so the LED never lights.']);
+  });
+
+  function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function bar() {
+    const keys = [...document.querySelectorAll('input[data-k]')];
+    const done = keys.filter((k) => k.checked).length;
+    $('bar').style.width = (done / keys.length) * 100 + '%';
+    $('barTxt').textContent = done + ' of ' + keys.length + ' ticks done';
+  }
+  function tick(k, wrapper) {
+    const cb = el('input'); cb.type = 'checkbox'; cb.dataset.k = k; cb.checked = !!saved[k]; cb.setAttribute('aria-label', 'Done');
+    wrapper.classList.toggle('done', cb.checked);
+    cb.addEventListener('change', () => { saved[k] = cb.checked; wrapper.classList.toggle('done', cb.checked); store(); bar(); });
+    return cb;
+  }
+  steps.forEach(([t, what, why], i) => {
+    const d = el('div', 'card step');
+    d.appendChild(tick('s' + i, d));
+    const b = el('div', 'body', '<h3>Step ' + (i + 1) + ' · ' + t + '</h3><p>' + what + '</p><p class="why"><b>Why?</b> ' + why + '</p>');
+    d.appendChild(b);
+    $('steps').appendChild(d);
+  });
+  let lastG = '';
+  wires.forEach(([g, from, to, via, why], i) => {
+    if (g !== lastG) { $('wires').appendChild(el('div', 'group', g)); lastG = g; }
+    const d = el('div', 'wire');
+    d.appendChild(tick('w' + i, d));
+    d.appendChild(el('div', 'path', '<span>' + from + '</span> → ' + (via ? '<i>[' + via + ']</i> → ' : '') + '<span>' + to + '</span>'));
+    d.appendChild(el('div', 'y', why));
+    $('wires').appendChild(d);
+  });
+  bar();
+
+  // wire doctor
+  const doc = [
+    ['All 8 LEDs stay dark', 'The breadboard − rail is not connected to Arduino GND (or the + rail is missing 5V).', 'Check the black and red rail wires from Step 2. Hover over the rail: both of the long strips on the same side must be wired.'],
+    ['One LED never lights', 'That LED is the wrong way round, or its cathode wire is missing.', 'Hover over its legs: the anode must go towards the resistor/pin and the cathode to the − rail. Flip it.'],
+    ['An LED is super bright then explodes', 'You forgot the 220 Ω resistor on that LED.', 'Add the resistor between the Arduino pin and the anode. Never connect an LED straight to a pin.'],
+    ['The lights never change when I turn the knob', 'The wiper (middle pin) is not on A0, or you are not on A0 in the code.', 'Move the wire to the MIDDLE pin of the potentiometer and to A0 (not A1).'],
+    ['The angle goes up when I turn the “wrong” way', 'The 5V and GND wires on the potentiometer ends are swapped.', 'Swap them. Nothing is broken, the track is just read the other way.'],
+    ['The Serial Monitor is empty', 'You did not open it, or the code did not upload.', 'Click Start Simulation first, then the Serial Monitor button at the bottom of the code panel.'],
+    ['White and red are the wrong way round on the unit', 'Your white and red pins are swapped.', 'White must be on the even pin (2, 4, 6, 8), red on the odd pin (3, 5, 7, 9).'],
+    ['The units flip in the wrong order', 'The units are plugged in a different order from the code.', 'Unit 1 = D2/D3 … Unit 4 = D8/D9. Or change the order of UNIT_ANGLE to match your layout.'],
+    ['Error: expected ; or not declared in this scope', 'A typo or a missing bracket from copy and paste.', 'Re-copy the whole code, select all in the editor first, and paste over it.'],
+  ];
+  doc.forEach(([s, c, f]) => {
+    const d = el('details', 'doc');
+    d.innerHTML = '<summary>🔧 ' + s + '</summary><div><p><b>Cause:</b> ' + c + '</p><p><b>Fix:</b> ' + f + '</p></div>';
+    $('doctor').appendChild(d);
+  });
+
+  // copy button
+  $('copy').addEventListener('click', async () => {
+    const txt = $('code').innerText.replace(/ /g, ' ');
+    try { await navigator.clipboard.writeText(txt); $('copied').textContent = 'Copied! Now paste it into Tinkercad.'; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($('code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('copied').textContent = 'Selected. Press Ctrl+C.'; }
+  });
+
+  // practice circuit (uses the same maths as the code)
+  const P = window.PAPI, units = $('units');
+  for (let i = 0; i < 4; i++) units.appendChild(el('div', 'u', '<i class="w"></i><i class="r"></i>D' + (2 + 2 * i) + ' / D' + (3 + 2 * i) + '<br>Unit ' + (i + 1)));
+  const serial = [];
+  function update() {
+    const raw = +$('knob').value, angle = P.angleFromRaw(raw);
+    $('rawV').textContent = raw;
+    $('voltV').textContent = P.voltsFromRaw(raw).toFixed(2) + ' V';
+    let w = 0;
+    [...units.children].forEach((u, i) => {
+      const above = P.isWhite(angle, i);
+      if (above) w++;
+      u.querySelector('.w').classList.toggle('on', above);
+      u.querySelector('.r').classList.toggle('on', !above);
+    });
+    const msg = ['TOO LOW - red on red, you\'re dead', 'SLIGHTLY LOW', 'ON SLOPE', 'SLIGHTLY HIGH', 'TOO HIGH - white on white, check your height'][w];
+    $('verdict').textContent = angle.toFixed(2) + '° · ' + w + ' white · ' + (w === 2 ? 'ON SLOPE' : w < 2 ? 'low' : 'high');
+    serial.push('Angle: ' + angle.toFixed(2) + ' deg | white lights: ' + w + ' | ' + msg);
+    if (serial.length > 8) serial.shift();
+    $('serial').innerHTML = serial.map((s) => '<div>' + s + '</div>').join('');
+  }
+  $('knob').addEventListener('input', update);
+  update();
+})();
+</script>
+</body>
+</html>
