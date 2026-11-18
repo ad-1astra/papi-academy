@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Teacher Guide · PAPI Mission 02</title>
+<title>Teacher Guide · Avionics Academy</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
 <link rel="stylesheet" href="css/academy.css">
 <style>
@@ -27,10 +27,11 @@
 <body>
 <article>
   <a class="ac-btn ghost small" href="index.html" style="justify-self: start">← Back to the hub</a>
-  <h1>Teacher Guide · Mission 02 · PAPI Runway Approach Lights</h1>
+  <h1>Teacher Guide · Avionics Academy</h1>
+  <p class="nav" style="display:flex;gap:8px;flex-wrap:wrap"><a class="ac-btn ghost small" href="#m2">Mission 02 · PAPI</a><a class="ac-btn ghost small" href="#m3">Mission 03 · Stall warning</a><a class="ac-btn ghost small" href="#m4">Mission 04 · Radar altimeter</a></p>
   <p>Learners are 15, they would rather not do electronics, and they must still learn it. The plan: <b>win first, build second</b>. They play PAPI Pilot (20 min) so the lights already mean something. Then they build the same lights in Tinkercad (40 min) and check the circuit against the game. Every answer is here.</p>
 
-  <h2>Setting up the room</h2>
+  <h2>Setting up the room (all missions)</h2>
   <ul>
     <li>Open the hub on each device, add one player per student, and tap a name before they play. Progress is saved in that browser only.</li>
     <li>Pairs work best: one plays (or builds), one reads the HUD/Serial numbers aloud, then swap each mission.</li>
@@ -39,7 +40,7 @@
     <li>Hook line: “Pilots land in the dark with no instruments but four lights. Today you play the pilot, then you become the electrician who builds them.”</li>
   </ul>
 
-  <h2>Game: what each mission teaches</h2>
+  <h2 id="m2">Mission 02 · Game: what each mission teaches</h2>
   <table>
     <tr><th>Mission</th><th>Concept from the notes</th><th>What the student does</th></tr>
     <tr><td>PAPI Pilot · 1 Turn the Knob</td><td>Potentiometer as voltage divider, analogRead 0–1023, angle = raw × 6 ÷ 1023, UNIT_ANGLE thresholds</td><td>Turns the knob to make the lights show 3 white, 1 white, then 2 white. Learns each band is 0.33° wide.</td></tr>
@@ -141,6 +142,172 @@ Serial.print(" m = "); Serial.print(height, 1); Serial.println(" m");</pre>
     <li>Wrong colour order: white/red swapped between even/odd pins.</li>
     <li>Code errors: pasted over only part of the old code. Select all first, and use Text mode, not Blocks.</li>
   </ul>
+
+  
+  <h2 id="m3">Mission 03 · Stall Warning System</h2>
+  <p>Hook: “Why does a plane fall out of the sky if it flies too SLOWLY and not just too low?” Play <a href="stall.html">Stall Watch</a> (25 min), then build the alarm with <a href="tinkercad3.html">the Tinkercad guide</a> (40 min).</p>
+
+  <h3>Game: what each mission teaches</h3>
+  <table>
+    <tr><th>Mission</th><th>Concept from the notes</th><th>What the student does</th></tr>
+    <tr><td>Stall Watch · 1 Find the Critical Angle</td><td>AoA, lift rises about 0.1 CL per degree to about 15°, then collapses</td><td>Raises the angle slowly, sees CAUTION at 12°, STALL at 15°, recovers below 12°.</td></tr>
+    <tr><td>Stall Watch · 2 Slow Flight</td><td>L = ½ρv²S·CL: slower needs more angle; stall speed</td><td>Holds altitude while the speed drops and flies 3 s in the 12–15° caution band.</td></tr>
+    <tr><td>Stall Watch · 3 Tune the Horn</td><td>f = 1 ÷ T, λ = v ÷ f, higher frequency = higher pitch</td><td>Calculates and dials in 1000 Hz, 800 Hz (λ 43 cm) and 2000 Hz (λ 17 cm).</td></tr>
+    <tr><td>Stall Watch · 4 Rig the Warning Logic</td><td>if / else if / else, order of checks</td><td>Orders three checks; a wrong order hides the stall horn and fails the test flight.</td></tr>
+    <tr><td>Stall Watch · 5 Stall Recovery</td><td>Recovery = lower the angle of attack; do not over-correct</td><td>Lowers the nose to about 6–10° to regain lift before reaching 100 m.</td></tr>
+  </table>
+
+  <h3>Tinkercad build: why every connection exists</h3>
+  <table>
+    <tr><th>Connection</th><th>Why (say it in teenager)</th></tr>
+    <tr><td>5V → + rail, GND → − rail</td><td>Power loop for everything.</td></tr>
+    <tr><td>Pot ends → 5V and GND, wiper → A0</td><td>The knob pretends to be the AoA vane: wiper voltage is the angle, A0 measures it.</td></tr>
+    <tr><td>D12 → 220 Ω → yellow LED → GND</td><td>Caution light. Resistor protects the LED, cathode returns current.</td></tr>
+    <tr><td>D13 → 220 Ω → red LED → GND</td><td>Stall warning light. Same pattern.</td></tr>
+    <tr><td>D8 → piezo +, piezo − → GND</td><td>tone() flips D8 on and off thousands of times a second. The disc vibrates and makes sound.</td></tr>
+  </table>
+
+  <h3>What the circuit should do (use this to check a student’s build)</h3>
+  <table>
+    <tr><th>State</th><th>Angle</th><th>analogRead</th><th>Pot voltage</th><th>Output</th></tr>
+    <tr><td>OK</td><td>−5.0° to 11.9°</td><td>0–579</td><td>0 – 2.83 V</td><td>Lights off, silent</td></tr>
+    <tr><td>CAUTION</td><td>12.0° to 14.9°</td><td>580–681</td><td>2.83 – 3.33 V</td><td>Yellow LED + slow 800 Hz beep</td></tr>
+    <tr><td>STALL</td><td>15.0° to 25.0°</td><td>682–1023</td><td>3.33 – 5 V</td><td>Red LED + continuous 2000 Hz tone</td></tr>
+  </table>
+  <p class="ans"><b>map() check:</b> map(raw, 0, 1023, −50, 250) ÷ 10.0 gives tenths of a degree. raw 0 → −5.0°, raw 1023 → +25.0°, half way (512) → 10.0°.</p>
+
+  <h3>Game answers</h3>
+  <ul>
+    <li><b>Critical angle:</b> 15° (CL max ≈ 1.5). After that CL drops sharply.</li>
+    <li><b>Level flight angle:</b> 60 m/s → 2.8°; 45 m/s → 4.9°; 30 m/s → 11.1°; 27 m/s → 13.7°. <b>Stall speed</b> (weight 9810 N, S = 16 m², ρ = 1.225, CL max 1.5): √(9810 ÷ (0.5 × 1.225 × 16 × 1.5)) ≈ <b>26 m/s</b>.</li>
+    <li><b>Tune the horn:</b> T = 1 ms → f = 1000 Hz. λ = 43 cm → f = 343 ÷ 0.43 ≈ 800 Hz. λ = 17 cm → f = 343 ÷ 0.17 ≈ 2000 Hz (T = 0.5 ms).</li>
+    <li><b>Warning logic order:</b> (1) aoa ≥ STALL_AOA, (2) else if aoa ≥ CAUTION_AOA, (3) else. Reason: 16° satisfies both conditions and only the first true branch runs.</li>
+    <li><b>Recovery:</b> lower the angle of attack to about 6° to 10°. 0° gives almost no lift, so you dive.</li>
+  </ul>
+
+  <h3>Quick quiz (from the notes)</h3>
+  <ol>
+    <li>What is the angle of attack?<br><span class="ans"><b>The angle between the wing and the oncoming air</b> (not the nose above the horizon).</span></li>
+    <li>Why is the stall check written before the caution check?<br><span class="ans"><b>Because an angle that is a stall (≥ 15°) is also ≥ 12°.</b> In an else-if chain the first true condition wins, so the more serious one must be first.</span></li>
+    <li>What does a higher tone() frequency sound like?<br><span class="ans"><b>A higher pitch.</b></span></li>
+  </ol>
+  <p class="ans"><b>Theory:</b> C<sub>L</sub> is about 0.1 per degree, so 12° ≈ 1.2 and 15° ≈ 1.5. f = 1 ÷ T: at 2000 Hz T = 0.0005 s = 0.5 ms, wavelength λ = 343 ÷ 2000 ≈ 17 cm. At 800 Hz T = 1.25 ms and λ ≈ 43 cm.</p>
+
+  <h3>Questions to ask while they play / build</h3>
+  <ol>
+    <li>A plane can stall at any speed or attitude. Why?<br><span class="ans">Stall depends only on angle of attack. Too much angle at any speed breaks the airflow away.</span></li>
+    <li>Why does the caution begin at 12° and not 15°?<br><span class="ans">To give the pilot time to react before the cliff edge.</span></li>
+    <li>If we swap the order and check 12° first, what happens at 17°?<br><span class="ans">Caution is true first, so only yellow + beep: the stall horn never sounds. Dangerous!</span></li>
+  </ol>
+
+  <h3>Boss level solutions</h3>
+  <p><b>Boss 1 · Faster beeps</b> (replace the <code>delay(400);</code> inside the caution branch):</p>
+<pre>int gap = map((int)(aoa * 10), 120, 150, 400, 100);   // 12 deg = slow, 15 deg = fast
+tone(BUZZER, 800, 60);
+delay(gap);</pre>
+  <p><b>Boss 2 · Stick shaker</b> (servo to D9, power to 5V, ground to GND):</p>
+<pre>#include &lt;Servo.h&gt;
+Servo shaker;                      // global
+// in setup():  shaker.attach(9);
+
+// inside the STALL branch, after tone(BUZZER, 2000):
+for (int i = 0; i &lt; 3; i++) {
+  shaker.write(70);  delay(40);
+  shaker.write(110); delay(40);
+}</pre>
+  <p><b>Boss 3 · Too negative</b> (add a branch before the final else):</p>
+<pre>} else if (aoa &lt;= -3.0) {           // far too negative
+  digitalWrite(RED_LED, LOW);
+  digitalWrite(YELLOW_LED, HIGH);
+  tone(BUZZER, 400, 80);
+  Serial.println("NEGATIVE AoA");
+  delay(400);
+} else {</pre>
+  <p class="ans">Any order works for this branch because −3° does not overlap with the other two conditions.</p>
+
+  <h2 id="m4">Mission 04 · Radar Altimeter Display</h2>
+  <p>Hook: “How does a plane know it is exactly 9 m above the ground in the fog?” Play <a href="altimeter.html">Radar Altimeter</a> (25 min), then build the display with <a href="tinkercad4.html">the Tinkercad guide</a> (60 min). This is the hardest wiring so far, so run it in pairs and use the Wire Doctor.</p>
+
+  <h3>Game: what each mission teaches</h3>
+  <table>
+    <tr><th>Mission</th><th>Concept from the notes</th><th>What the student does</th></tr>
+    <tr><td>Radar Altimeter · 1 Time the Echo</td><td>d = v × t; divide by 2 (down and back); 343 m/s = 0.0343 cm/µs</td><td>Converts 5830, 11660 and 2915 µs into heights, flies there and checks.</td></tr>
+    <tr><td>Radar Altimeter · 2 Hot Day Calibration</td><td>v ≈ 331 + 0.6 × T; a 20 °C sensor reads about 2.6% low at 35 °C</td><td>Works out 352 m/s (0.0352 cm/µs), then 334 m/s (0.0334) for the cold morning.</td></tr>
+    <tr><td>Radar Altimeter · 3 Steady Descent</td><td>Rate of change: Δheight ÷ Δtime (challenge 3)</td><td>Computes the rate from two LCD readings and holds 25–45 cm/s for 5 s.</td></tr>
+    <tr><td>Radar Altimeter · 4 Flare Now!</td><td>CRUISE / APPROACH / FLARE NOW! thresholds; the flare; callouts 50, 40, 30, 20, 10</td><td>Descends, waits for FLARE NOW! (below 50 cm) and flares to touch down under 30 cm/s.</td></tr>
+  </table>
+
+  <h3>Tinkercad build: why every connection exists</h3>
+  <table>
+    <tr><th>Connection</th><th>Why (say it in teenager)</th></tr>
+    <tr><td>Sensor VCC → 5V, GND → GND</td><td>The sensor needs power to make its ping.</td></tr>
+    <tr><td>D7 → Trig</td><td>Arduino tells the sensor “ping now” (10 µs pulse).</td></tr>
+    <tr><td>D6 ← Echo</td><td>The sensor answers: the pin stays HIGH as long as the echo took. pulseIn() times it.</td></tr>
+    <tr><td>LCD GND, VCC, RW → GND</td><td>Power, and “write only”: we only send letters to the display.</td></tr>
+    <tr><td>Pot wiper → V0</td><td>Contrast control: a voltage divider again.</td></tr>
+    <tr><td>RS → D12, E → D11</td><td>RS = command or letter; E = “read it now”.</td></tr>
+    <tr><td>DB4–DB7 → D5, D4, D3, D2</td><td>Four data wires carry each character in two halves (4-bit mode). They must match <code>LiquidCrystal lcd(12, 11, 5, 4, 3, 2)</code>.</td></tr>
+    <tr><td>5V → 220 Ω → LED Anode, Cathode → GND</td><td>The backlight is an LED, so it needs a resistor.</td></tr>
+  </table>
+
+  <h3>What the circuit should do</h3>
+  <table>
+    <tr><th>Distance (target dot)</th><th>Echo time</th><th>Line 1</th><th>Line 2</th></tr>
+    <tr><td>100 cm</td><td>≈ 5830 µs</td><td>ALT 100 cm</td><td>APPROACH</td></tr>
+    <tr><td>200 cm</td><td>≈ 11 660 µs</td><td>ALT 200 cm</td><td>CRUISE (≥ 150)</td></tr>
+    <tr><td>87 cm</td><td>≈ 5070 µs</td><td>ALT 87 cm</td><td>APPROACH</td></tr>
+    <tr><td>40 cm</td><td>≈ 2330 µs</td><td>ALT 40 cm</td><td>FLARE NOW! (≤ 50)</td></tr>
+  </table>
+
+  <h3>Game answers</h3>
+  <ul>
+    <li><b>5830 µs:</b> 0.0343 × 5830 = 200 cm there and back → <b>100 cm</b>. 11 660 µs → <b>200 cm</b>. 2915 µs → <b>50 cm</b>.</li>
+    <li><b>35 °C:</b> v = 331 + 0.6 × 35 = <b>352 m/s = 0.0352 cm/µs</b>. A 0.0343 sensor reads 200 × 343 ÷ 352 ≈ 195 cm (about 2.6% low).</li>
+    <li><b>5 °C:</b> v = 331 + 0.6 × 5 = <b>334 m/s = 0.0334 cm/µs</b>. A 0.0343 sensor reads about 154 cm for a true 150 cm (high).</li>
+    <li><b>Descent rate:</b> (248 − 233) ÷ 0.5 = <b>30 cm/s</b>. The target window is 25 to 45 cm/s.</li>
+    <li><b>Flare:</b> wait for FLARE NOW! (below 50 cm), hold Space, touch down at or below 30 cm/s. Flaring above 60 cm is “too early”.</li>
+  </ul>
+
+  <h3>Quick quiz (from the notes)</h3>
+  <ol>
+    <li>Why do we divide by 2 in the distance formula?<br><span class="ans"><b>The sound travels down AND back up</b>, so the echo time covers twice the height.</span></li>
+    <li>What does the LCD’s V0 pin control?<br><span class="ans"><b>The contrast</b> (how dark the characters are).</span></li>
+    <li>Why do aircraft use radio waves rather than sound for this?<br><span class="ans"><b>Radio travels at 300 000 000 m/s</b>, nearly a million times faster, so echoes come back in microseconds even from 2500 ft, and the speed does not depend on air temperature. Sound from 2500 ft (762 m) would take 2 × 762 ÷ 343 ≈ 4.4 s for the round trip; radio takes about 5 µs.</span></li>
+  </ol>
+
+  <h3>Questions to ask while they play / build</h3>
+  <ol>
+    <li>Why is the echo time 5830 µs for a 100 cm height and not 2915 µs?<br><span class="ans">5830 µs is the round trip (200 cm of travel). The one-way time is 2915 µs.</span></li>
+    <li>If the sensor reads low on a hot day, is the aircraft closer or farther than it says?<br><span class="ans">Farther. Sound returns sooner on a hot day, so the Arduino thinks the ground is nearer than it is.</span></li>
+    <li>Why print spaces after the text on the LCD?<br><span class="ans">The LCD does not clear itself. Spaces wipe leftover characters from a previous longer message.</span></li>
+  </ol>
+
+  <h3>Boss level solutions</h3>
+  <p><b>Boss 1 · Parking sensor.</b> Piezo + to D8, − to GND, <code>pinMode(8, OUTPUT)</code> in setup. Replace <code>delay(200);</code> at the end of loop():</p>
+<pre>if (alt &gt; 0 &amp;&amp; alt &lt; APPROACH_CM) {
+  tone(8, 1000, 40);
+  delay(map(alt, 2, APPROACH_CM, 50, 500));   // closer = faster beeps
+} else {
+  noTone(8);
+  delay(200);
+}</pre>
+  <p><b>Boss 2 · Feet.</b> Replace the alt printing with:</p>
+<pre>lcd.print("ALT ");
+lcd.print(alt / 30.48, 1);        // 1 ft = 30.48 cm, one decimal
+lcd.print(" ft      ");</pre>
+  <p class="ans">Check: 100 cm → 3.3 ft. 30 ft ≈ 914 cm, which is where a real flare would start.</p>
+  <p><b>Boss 3 · Descent rate.</b></p>
+<pre>long lastAlt = 0;                  // globals
+unsigned long lastTime = 0;
+// in loop(), after reading alt:
+unsigned long now = millis();
+float rate = (lastAlt - alt) * 1000.0 / (now - lastTime);   // cm/s, positive = descending
+lastAlt = alt;  lastTime = now;
+lcd.setCursor(9, 0);
+lcd.print((int)rate);
+lcd.print("cm/s  ");</pre>
+  <p class="ans">The row-0 text “ALT 87 cm” takes 9 characters, so the rate starts at column 9. Time is measured with millis() so the answer stays right even though the loop is not exactly 200 ms.</p>
+  <p class="ans"><b>Out of range:</b> the Tinkercad sensor works from about 2 to 330 cm. Beyond that pulseIn() times out and returns 0, so the LCD shows 0 cm and FLARE NOW!. Tell students to keep the target in range.</p>
 
   <h2>Hosting and saving</h2>
   <p>Student progress (stars, XP, build ticks) lives in each browser’s localStorage. It does not follow the student between devices.</p>

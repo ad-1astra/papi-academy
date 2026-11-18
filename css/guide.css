@@ -1,0 +1,54 @@
+/* Build-guide pages (Tinkercad) */
+  body { overflow-y: auto; background: var(--bg); }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 18px 16px 80px; display: grid; gap: 16px; }
+  h1 { font-family: var(--f-display); font-size: clamp(1.7rem, 5vw, 2.5rem); }
+  h1 em { color: var(--cyan); font-style: normal; }
+  h2 { font-family: var(--f-display); font-size: 1.35rem; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+  h2 small { font-family: var(--f-hud); font-size: 0.7rem; color: var(--magenta); letter-spacing: 0.12em; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  p, li { max-width: 72ch; }
+  .lead { color: var(--dim); font-size: 1.05rem; }
+  .card { border: 1px solid var(--line); background: var(--panel); border-radius: var(--r); padding: 14px; display: grid; gap: 8px; }
+  .why { border-left: 3px solid var(--magenta); padding-left: 10px; color: var(--fg); }
+  .why b { color: var(--magenta); }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: start; }
+  .step input[type=checkbox], .wire input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--green); margin-top: 3px; }
+  .step.done, .wire.done { opacity: 0.62; }
+  .step h3 { font-size: 1.05rem; }
+  .step .body { display: grid; gap: 6px; }
+  .tag { display: inline-block; font-family: var(--f-hud); font-size: 0.72rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--dim); }
+  .wire { display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--raised); }
+  .wire .path { font-weight: 700; }
+  .wire .path span { color: var(--cyan); }
+  .wire .path i { color: var(--amber); font-style: normal; font-family: var(--f-hud); font-size: 0.8rem; }
+  .wire .y { grid-column: 2; color: var(--dim); font-size: 0.92rem; }
+  .group { font-family: var(--f-hud); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-top: 8px; }
+  pre { margin: 0; background: #050d18; border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; font-family: var(--f-hud); font-size: 0.8rem; line-height: 1.5; color: #d6e6f7; }
+  .cm { color: #6f8aa8; } .kw { color: #ff9ac8; } .nm { color: #ffd37a; }
+  .codebar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lines { display: grid; gap: 6px; }
+  .lines div { display: grid; grid-template-columns: minmax(0, 17em) 1fr; gap: 10px; background: var(--raised); border-radius: 8px; padding: 8px 10px; }
+  .lines code { font-family: var(--f-hud); font-size: 0.8rem; color: var(--cyan); overflow-wrap: anywhere; }
+  @media (max-width: 640px) { .lines div { grid-template-columns: 1fr; } }
+  /* virtual PAPI */
+  .sim { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 700px) { .sim { grid-template-columns: 1fr; } }
+  .units { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .u { display: grid; gap: 6px; justify-items: center; background: var(--raised); border-radius: 8px; padding: 8px 4px; font-family: var(--f-hud); font-size: 0.7rem; color: var(--dim); }
+  .u i { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #0008; background: #3a2a2a; transition: 0.1s; }
+  .u i.w.on { background: #fff; box-shadow: 0 0 14px 4px #fffa; }
+  .u i.r.on { background: #ff2a1a; box-shadow: 0 0 14px 4px #ff2a1a88; }
+  .u i.w { background: #2a3038; } .u i.r { background: #3a1d1b; }
+  .u i.w.on, .u i.r.on { border-color: transparent; }
+  input[type=range] { width: 100%; accent-color: var(--cyan); }
+  .serial { background: #050d18; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--f-hud); font-size: 0.74rem; line-height: 1.5; height: 150px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; color: #b8f1c5; }
+  .doc { border: 1px solid var(--line); border-radius: 8px; background: var(--raised); }
+  .doc summary { cursor: pointer; padding: 10px 12px; font-weight: 700; }
+  .doc div { padding: 0 12px 12px; color: var(--dim); }
+  .doc div b { color: var(--green); }
+  .boss { border-color: var(--amber); }
+  .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+  .progressbar { height: 8px; border-radius: 4px; background: var(--raised); overflow: hidden; }
+  .progressbar i { display: block; height: 100%; width: 0; background: var(--green); transition: width 0.25s; }
+  table.parts { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  .parts th, .parts td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  .parts th { background: var(--raised); }

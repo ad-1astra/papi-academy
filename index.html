@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PAPI Academy</title>
+<title>Avionics Academy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
@@ -46,14 +46,13 @@
     <span class="word" id="title">Learning Academy</span>
     <span class="grow"></span>
     <a class="ac-btn ghost small" href="arena.html#all">Final exam</a>
-    <a class="ac-btn ghost small" href="tinkercad.html">Tinkercad build</a>
     <a class="ac-btn ghost small" href="teacher.html">Teacher guide</a>
   </header>
   <section class="hero">
     <span class="mono dim" id="chip"></span>
-    <h1>Land the plane. <em>Then build the lights.</em></h1>
-    <p id="tagline">Fly a real night approach using PAPI lights, then wire the same lights in Tinkercad with copy-and-paste code.</p>
-    <div class="ac-actions"><a class="ac-btn" id="go" href="#">Play</a><a class="ac-btn ghost" href="tinkercad.html">Build it in Tinkercad</a><a class="ac-btn ghost" href="arena.html#all">Quiz Duel</a></div>
+    <h1>Fly it. <em>Then build it.</em></h1>
+    <p id="tagline">Play a game for each avionics system, then build the real circuit in Tinkercad with copy-and-paste code.</p>
+    <div class="ac-actions"><a class="ac-btn" id="go" href="#">Play</a><a class="ac-btn ghost" href="arena.html#all">Quiz Duel</a></div>
   </section>
   <h2 class="sec">Players</h2>
   <div class="players" id="players"></div>
@@ -65,10 +64,14 @@
 <script>
 /* Course config: one entry per lesson in the notes. `game` + `missions` must match the ids used in each game's AC.missions(). */
 const COURSE = {
-  title: 'PAPI Academy',
+  title: 'Avionics Academy',
   lessons: [
-    { n: 2, title: 'PAPI Runway Approach Lights', summary: 'Read 4 lights, work out the glide angle with trigonometry, then build the real thing in Tinkercad.',
+    { n: 2, title: 'PAPI Runway Approach Lights', summary: 'Read 4 lights, work out the glide angle with trigonometry, then build the real thing in Tinkercad.', build: 'tinkercad.html',
       games: [{ url: 'papi.html', name: 'PAPI Pilot', game: 'papi', missions: ['knob', 'trig', 'approach', 'gusty'], sub: 'Turn the knob · trig check · land it · night gusts' }] },
+    { n: 3, title: 'Stall Warning System', summary: 'Find the critical angle, fly slow, tune the horn, rig the if / else if logic and recover from a stall.', build: 'tinkercad3.html',
+      games: [{ url: 'stall.html', name: 'Stall Watch', game: 'stall', missions: ['critical', 'slow', 'horn', 'logic', 'recover'], sub: 'Critical angle · slow flight · horn · logic · recovery' }] },
+    { n: 4, title: 'Radar Altimeter Display', summary: 'Time an echo, correct for a hot day, hold a steady descent and flare on the LCD call.', build: 'tinkercad4.html',
+      games: [{ url: 'altimeter.html', name: 'Radar Altimeter', game: 'altimeter', missions: ['echo', 'hot', 'descent', 'flare'], sub: 'Echo time · hot day · steady descent · flare now' }] },
   ],
 };
 (function () {
@@ -104,6 +107,7 @@ const COURSE = {
         if (!next && got < max) next = g;
         card.appendChild(h('a', { class: 'g', href: g.url }, h('b', {}, g.name), starStr(got, max), g.sub ? h('small', {}, g.sub) : null));
       }
+      if (l.build) card.appendChild(h('a', { class: 'test', style: { color: 'var(--green)' }, href: l.build }, '▸ Build it in Tinkercad'));
       card.appendChild(h('a', { class: 'test', href: 'arena.html#w' + l.n }, '▸ Take the Mission ' + l.n + ' test'));
       el.appendChild(card);
     }

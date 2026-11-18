@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build the Radar Altimeter in Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/academy.css">
+<link rel="stylesheet" href="css/guide.css">
+<style>.lcdp { background: #a5e04a; border: 6px solid #1d6b2a; border-radius: 4px; padding: 10px 12px; font-family: var(--f-hud); font-weight: 700; color: #1b2a08; font-size: 1rem; line-height: 1.5; white-space: pre; overflow-x: auto; }</style>
+</head>
+<body>
+<div class="wrap" id="guide"></div>
+<script src="js/echo-model.js"></script>
+<script>
+window.GUIDE = {
+  id: 'm4', week: 4, game: 'altimeter', gameName: 'Radar Altimeter', teacherAnchor: 'm4',
+  title: 'Build the Radar Altimeter in Tinkercad',
+  meta: 'MSN 04 · INTERMEDIATE · ABOUT 60 MIN',
+  h1: 'You are the avionics engineer.<br><em>Build the screen that calls “FLARE NOW!”</em>',
+  lead: 'In the game you landed using a height display. Now you build one. An ultrasonic sensor pings the ground, your Arduino times the echo, and a 16×2 LCD shows the height with CRUISE, APPROACH or FLARE NOW!, just like a cockpit.',
+  circuitName: 'MSN04 Radar Altimeter',
+  parts: [
+    ['Arduino Uno R3', 1, 'Times the echo, calculates the height and drives the display.'],
+    ['Breadboard Small', 1, 'Holds the LCD and the contrast potentiometer.'],
+    ['Ultrasonic Distance Sensor (4-pin)', 1, 'One “eye” sends a 40 kHz sound pulse, too high for humans to hear. The other listens for the echo.'],
+    ['LCD 16 x 2', 1, 'Shows 2 rows of 16 characters. It has its own small controller chip, so the Arduino only sends it letters.'],
+    ['Potentiometer', 1, 'Sets the LCD contrast. If the screen is blank, turn this knob.'],
+    ['Resistor (set to 220 Ω)', 1, 'Limits current to the LCD backlight LED.'],
+  ],
+  partsTip: 'This is the biggest build so far. Take it in order, tick as you go, and do not rush the LCD wires: that is where 90% of mistakes happen.',
+  steps: [
+    ['Set up the board and rails', 'New circuit MSN04 Radar Altimeter. Arduino and breadboard. 5V → + rail (red wire), GND → − rail (black wire).', 'The LCD and the sensor both need power, so make the rails first.'],
+    ['Place the ultrasonic sensor', 'Search for “Ultrasonic Distance Sensor (4-pin)”. VCC → + rail, GND → − rail, Trig → D7, Echo → D6.', 'Trig is an input to the sensor: a 10 µs pulse tells it to “ping”. Echo is the sensor’s output: a pulse as long as the sound’s round trip.'],
+    ['Place the LCD on the breadboard', 'Add an LCD 16 x 2 with its pins plugged into the breadboard. Hover over each pin to read its name.', 'The LCD has 16 pins, but we only need 4 data pins (DB4 to DB7) because the library sends each character in two halves. This is called 4-bit mode.'],
+    ['Power the LCD', 'GND → − rail, VCC → + rail, RW → GND, LED Anode → +5 V through a 220 Ω resistor, LED Cathode → GND.', 'Tying RW to ground fixes the LCD in write mode, because we only ever send data to it. The backlight is an ordinary LED, so it needs its own resistor.'],
+    ['Add the contrast knob', 'Place a Potentiometer: its two end terminals to +5 V and GND, its Wiper to the LCD’s V0 pin.', 'V0 sets how dark the characters are. This is another voltage divider, like the knob in Missions 2 and 3.'],
+    ['Connect the control and data pins', 'RS → D12, E → D11, DB4 → D5, DB5 → D4, DB6 → D3, DB7 → D2.', 'RS chooses between “this is a command” and “this is a letter”. E (enable) is the “read it now” signal. These must match the numbers in LiquidCrystal lcd(12, 11, 5, 4, 3, 2).'],
+    ['Code, simulate, descend', 'Paste the code and start the simulation. Click the sensor and drag the target dot closer to bring the “aircraft” down. Watch for CRUISE, then APPROACH, then FLARE NOW!.', 'The “flare” is the final nose-up just before touchdown that slows the descent. Pilots start it at about 30 ft.'],
+  ],
+  wires: [
+    ['Power', 'Arduino 5V', 'Breadboard + rail', '', 'Supplies 5 V to every part. Use a red wire.'],
+    ['Power', 'Arduino GND', 'Breadboard − rail', '', 'The return path that closes every loop. Use a black wire.'],
+    ['Ultrasonic sensor', 'Ultrasonic VCC', '+ rail (5V)', '', 'Power for the sensor.'],
+    ['Ultrasonic sensor', 'Arduino D7', 'Ultrasonic Trig', '', 'The Arduino sends the 10 µs “ping now” pulse down this wire.'],
+    ['Ultrasonic sensor', 'Arduino D6', 'Ultrasonic Echo', '', 'The sensor answers on this wire. pulseIn() times how long it stays HIGH.'],
+    ['Ultrasonic sensor', 'Ultrasonic GND', '− rail (GND)', '', 'Return path to ground.'],
+    ['LCD power', 'LCD GND', '− rail (GND)', '', 'Return path to ground.'],
+    ['LCD power', 'LCD VCC', '+ rail (5V)', '', 'Power for the display and its controller chip.'],
+    ['LCD power', 'LCD RW', '− rail (GND)', '', 'Read/Write: tied to ground means “write only”. We only send letters to the LCD.'],
+    ['LCD contrast', 'Pot Terminal 1', '+ rail (5V)', '', 'Puts 5 V on one end of the contrast track.'],
+    ['LCD contrast', 'Pot Terminal 2', '− rail (GND)', '', 'Puts 0 V on the other end.'],
+    ['LCD contrast', 'Pot Wiper', 'LCD V0', '', 'The wiper voltage sets the contrast. Turn the knob if the screen is blank or all blocks.'],
+    ['LCD control', 'Arduino D12', 'LCD RS', '', 'Register Select: command (0) or letter (1).'],
+    ['LCD control', 'Arduino D11', 'LCD E', '', 'Enable: the “read it now” pulse.'],
+    ['LCD data', 'Arduino D5', 'LCD DB4', '', 'Data bit 4. The library sends each character in two 4-bit halves.'],
+    ['LCD data', 'Arduino D4', 'LCD DB5', '', 'Data bit 5.'],
+    ['LCD data', 'Arduino D3', 'LCD DB6', '', 'Data bit 6.'],
+    ['LCD data', 'Arduino D2', 'LCD DB7', '', 'Data bit 7.'],
+    ['LCD backlight', '+ rail (5V)', 'LCD LED Anode', '220 Ω', 'The backlight is just an LED, so it needs a resistor to limit the current.'],
+    ['LCD backlight', 'LCD LED Cathode', '− rail (GND)', '', 'Return path to ground.'],
+  ],
+  code: `// MSN 04 - Radar Altimeter Display
+// Ping the ground with sound, time the echo, show the height on the LCD.
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);   // RS, E, DB4, DB5, DB6, DB7
+
+const int TRIG = 7;
+const int ECHO = 6;
+const float CM_PER_US = 0.0343;          // speed of sound at 20 C: 343 m/s = 0.0343 cm/us
+const int APPROACH_CM = 150;             // below this: APPROACH
+const int FLARE_CM = 50;                 // below this: FLARE NOW!
+
+// Your own function: ping, time the echo, return the height in cm
+long readAltitudeCm() {
+  digitalWrite(TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG, HIGH);              // 10 microsecond ping
+  delayMicroseconds(10);
+  digitalWrite(TRIG, LOW);
+  long echoTime = pulseIn(ECHO, HIGH, 30000);   // microseconds the Echo pin stays HIGH
+  return echoTime * CM_PER_US / 2;       // divide by 2: sound goes down AND back up
+}
+
+void setup() {
+  pinMode(TRIG, OUTPUT);
+  pinMode(ECHO, INPUT);
+  lcd.begin(16, 2);
+  lcd.print("RADAR ALTIMETER");
+  delay(1000);
+  lcd.clear();
+}
+
+void loop() {
+  long alt = readAltitudeCm();
+
+  lcd.setCursor(0, 0);                   // column 0, row 0
+  lcd.print("ALT ");
+  lcd.print(alt);
+  lcd.print(" cm      ");                // spaces wipe leftover digits
+
+  lcd.setCursor(0, 1);                   // column 0, row 1 (the second line)
+  if (alt >= APPROACH_CM) {
+    lcd.print("CRUISE          ");
+  } else if (alt > FLARE_CM) {
+    lcd.print("APPROACH        ");
+  } else {
+    lcd.print("FLARE NOW!      ");
+  }
+  delay(200);
+}`,
+  explain: [
+    ['#include <LiquidCrystal.h>', 'Loads a library: ready-made code that knows how to talk to the LCD’s controller chip.'],
+    ['LiquidCrystal lcd(12, 11, 5, 4, 3, 2);', 'Creates an LCD object and tells it which Arduino pins are wired to RS, E, DB4, DB5, DB6 and DB7.'],
+    ['long readAltitudeCm()', 'Your own function. It does one job, returns a number, and keeps loop() short and readable.'],
+    ['pulseIn(ECHO, HIGH, 30000)', 'Waits for the Echo pin to go HIGH, then measures how many microseconds it stays HIGH. 30000 is a time-out so it gives up if there is no echo.'],
+    ['echoTime * CM_PER_US / 2', 'distance = speed × time. We divide by 2 because the sound travels down and back up.'],
+    ['lcd.setCursor(0, 1)', 'Moves to column 0 of row 1, the second line. Counting starts at 0.'],
+    ['lcd.print("CRUISE          ")', 'The extra spaces fill the whole 16-character line, so the old text is wiped when the message changes.'],
+  ],
+  practiceLead: 'A mini copy of your circuit. Drag the target to change the height and watch the LCD. Then flip the temperature to see why a hot day breaks the sensor.',
+  practiceHTML: `<div style="display:grid;gap:10px">
+      <label for="dist"><b>Height</b> · <span class="mono" id="dV">100 cm</span> · echo <span class="mono" id="eV">--</span></label>
+      <input id="dist" type="range" min="2" max="330" value="100" aria-label="Height in cm">
+      <label for="tmp"><b>Air temperature</b> · <span class="mono" id="tV">20 °C</span></label>
+      <input id="tmp" type="range" min="0" max="40" value="20" aria-label="Temperature">
+      <p class="dim" style="font-size:0.85rem" id="note"></p></div>
+    <div><div class="mono dim" style="font-size:0.7rem;margin-bottom:4px">LCD (what you should see)</div><div class="lcdp" id="lcd"></div></div>`,
+  practiceInit($) {
+    const E = window.ECHO;
+    function update() {
+      const d = +$('dist').value, T = +$('tmp').value, v = E.soundSpeed(T);
+      const us = Math.round(E.echoUs(d, v)), alt = Math.floor((us * 0.0343) / 2); // code uses 0.0343, long truncates
+      $('dV').textContent = d + ' cm'; $('eV').textContent = us + ' µs'; $('tV').textContent = T + ' °C';
+      const l1 = ('ALT ' + alt + ' cm').padEnd(16), l2 = (alt >= 150 ? 'CRUISE' : alt > 50 ? 'APPROACH' : 'FLARE NOW!').padEnd(16);
+      $('lcd').textContent = l1 + '\n' + l2;
+      $('note').textContent = T === 20 ? 'At 20 °C the sound speed is 343 m/s, exactly what the code assumes.' : 'At ' + T + ' °C sound travels at ' + v.toFixed(0) + ' m/s but the code assumes 343 m/s, so the LCD is off by ' + (alt - d) + ' cm.';
+    }
+    $('dist').addEventListener('input', update); $('tmp').addEventListener('input', update); update();
+  },
+  test: [
+    'Click <b>Start Simulation</b>. The LCD shows <b>RADAR ALTIMETER</b> for one second, then a live reading.',
+    'Click the ultrasonic sensor. A small target dot appears. <b>Drag it closer or further</b> and the number changes. Tinkercad’s sensor works between about 2 and 330 cm.',
+    'Above 150 cm the second line says <b>CRUISE</b>. Between 50 and 150 cm it says <b>APPROACH</b>. Below 50 cm it says <b>FLARE NOW!</b>',
+    'Blank or solid-block LCD? Turn the contrast potentiometer, then check RW and V0.',
+    'Strange characters? Two of the DB4 to DB7 wires are probably swapped.',
+  ],
+  doctor: [
+    ['The LCD is blank', 'Contrast too low, or no power to the LCD.', 'Turn the contrast potentiometer. Check LCD VCC → + rail and GND → − rail.'],
+    ['The LCD shows a row of solid blocks', 'The LCD is powered but not receiving letters, or the contrast is too high.', 'Check E (D11), RS (D12) and the four data wires. Turn the contrast knob.'],
+    ['Strange characters', 'Two data wires are swapped.', 'Compare with the wiring table: DB4 → D5, DB5 → D4, DB6 → D3, DB7 → D2.'],
+    ['The reading is always 0', 'Trig and Echo are swapped, or the target is out of range (below 2 cm or beyond about 330 cm).', 'Trig must go to D7 and Echo to D6. Move the target to between 2 and 330 cm.'],
+    ['The number never changes', 'The sensor is not powered or the sensor GND is missing.', 'Check the sensor VCC and GND wires.'],
+    ['Old digits stay on screen (ALT 100 cm then ALT 9 cm cm)', 'The line was not wiped.', 'Add spaces after the number: lcd.print(" cm      ");'],
+    ['The reading is a few % wrong', 'Real or simulated temperature differs from 20 °C.', 'Change CM_PER_US to 331 + 0.6 × T, divided by 10 000. For 35 °C that is 0.0352.'],
+    ['Error: LiquidCrystal.h not found', 'The editor is still in Blocks mode, or the first line was lost when you pasted.', 'Switch to Text mode, select all, and paste the whole program again.'],
+  ],
+  bosses: [
+    ['Boss 1 · Parking sensor', 'Add a piezo that beeps faster as you descend, like a car parking sensor. Hint: <code>map(alt, 2, 150, 50, 500)</code> for the gap between beeps.'],
+    ['Boss 2 · Feet', 'Show feet instead of centimetres (1 ft = 30.48 cm) to match a real cockpit.'],
+    ['Boss 3 · Descent rate', 'Work out your descent rate: subtract the last reading from this one and show it on the LCD in cm/s.'],
+  ],
+};
+</script>
+<script src="js/guide.js"></script>
+</body>
+</html>

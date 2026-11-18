@@ -1,6 +1,11 @@
-# PAPI Academy · Mission 02 · PAPI Runway Approach Lights
+# Avionics Academy
 
-Play **PAPI Pilot** (4 missions), then build the same lights in Tinkercad with copy-and-paste code.
+A game plus a Tinkercad build guide for each mission, with a teacher guide that has every answer.
 
-- `index.html` hub · `papi.html` the game · `tinkercad.html` build guide + code · `teacher.html` teacher guide with answers · `arena.html` quiz
-- Plain static HTML/JS. Runs offline from the folder, no build step.
+| Mission | Game | Tinkercad guide |
+|---|---|---|
+| 02 PAPI Runway Approach Lights | `papi.html` | `tinkercad.html` |
+| 03 Stall Warning System | `stall.html` | `tinkercad3.html` |
+| 04 Radar Altimeter Display | `altimeter.html` | `tinkercad4.html` |
+
+`index.html` hub · `teacher.html` teacher guide · `arena.html` quiz. Plain static HTML/JS, no build step.

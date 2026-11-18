@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build the Stall Warning in Tinkercad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=B612+Mono&family=Chakra+Petch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/academy.css">
+<link rel="stylesheet" href="css/guide.css">
+<style>.u i.y.on { background: #ffd23f; box-shadow: 0 0 14px 4px #ffd23faa; } .u i.y { background: #3b3416; }</style>
+</head>
+<body>
+<div class="wrap" id="guide"></div>
+<script src="js/stall-model.js"></script>
+<script>
+window.GUIDE = {
+  id: 'm3', week: 3, game: 'stall', gameName: 'Stall Watch', teacherAnchor: 'm3',
+  title: 'Build the Stall Warning in Tinkercad',
+  meta: 'MSN 03 · BEGINNER · ABOUT 40 MIN',
+  h1: 'You are the safety engineer.<br><em>Build the alarm that stops stalls.</em>',
+  lead: 'In the game you felt what a stall does. Now you build the warning that tells the pilot BEFORE it happens: a yellow light at 12°, and a red light with a screaming horn at 15°. Everything runs on an Arduino in Tinkercad.',
+  circuitName: 'MSN03 Stall Warning',
+  parts: [
+    ['Arduino Uno R3', 1, 'Compares the angle of attack with the warning limits.'],
+    ['Breadboard Small', 1, 'Holds the parts so you do not need to solder.'],
+    ['Potentiometer', 1, 'Stands in for the AoA vane. Turning the knob is like the vane turning in the wind.'],
+    ['LED (set colour to Yellow)', 1, 'CAUTION light, on from 12°.'],
+    ['LED (set colour to Red)', 1, 'STALL WARNING light, on from 15°.'],
+    ['Piezo', 1, 'A crystal disc that flexes when voltage is applied. Switching it on and off quickly makes a sound wave.'],
+    ['Resistor (set to 220 Ω)', 2, 'One per LED, to limit current.'],
+  ],
+  partsTip: 'Click a part once it is on the grid to change its colour (LEDs) or resistance (resistors: type 220). Turn up your computer volume: Tinkercad plays the piezo through your speakers.',
+  steps: [
+    ['Set up the board and rails', 'New circuit MSN03 Stall Warning. Add the Arduino and breadboard. Draw a RED wire from 5V to the + rail and a BLACK wire from GND to the − rail.', 'You will use both rails: the potentiometer needs 5 V and everything else returns to GND.'],
+    ['Add the AoA vane', 'Place a Potentiometer. Terminal 1 → +5 V rail, Terminal 2 → GND rail, middle pin (Wiper) → A0.', 'Turning the knob is like the vane turning in the wind. The voltage at A0 is proportional to the angle.'],
+    ['Add the caution and warning lights', 'Yellow LED: anode through a 220 Ω resistor to D12, cathode to the GND rail. Red LED: anode through a 220 Ω resistor to D13, cathode to GND. (Resistors straddle the breadboard’s middle gap.)', 'Aircraft use yellow (amber) for caution and red for warning everywhere in the cockpit. That colour standard is the same in every aircraft, so a pilot reacts without thinking.'],
+    ['Add the stall horn', 'Place a Piezo. Wire its Positive pin to D8 and its Negative pin to the GND rail.', 'tone() switches the pin on and off at a chosen frequency. The piezo disc vibrates at that frequency and pushes the air into a sound wave.'],
+    ['Paste the code', 'Code → Text → select everything → paste the program from Part 3.', 'The program checks the most dangerous condition first, so a stall always wins over a caution.'],
+    ['Fly it', 'Click Start Simulation and open the Serial Monitor. Slowly turn the knob from the bottom (−5°) to the top (+25°) and listen for the change at 12° and again at 15°.', 'Pilots practise exactly this. They raise the nose slowly until the warning sounds, then lower it to recover.'],
+  ],
+  wires: [
+    ['Power', 'Arduino 5V', 'Breadboard + rail', '', 'Supplies 5 V to every part that needs power. Use a red wire.'],
+    ['Power', 'Arduino GND', 'Breadboard − rail', '', 'The return path that closes every loop. Use a black wire.'],
+    ['AoA vane', 'Potentiometer Terminal 1', '+ rail (5V)', '', 'Puts 5 V on one end of the track.'],
+    ['AoA vane', 'Arduino A0', 'Potentiometer Wiper', '', 'Analog input: the sensor voltage is measured here. The wiper is the middle pin.'],
+    ['AoA vane', 'Potentiometer Terminal 2', '− rail (GND)', '', 'Puts 0 V on the other end so the wiper can sweep from 0 to 5 V.'],
+    ['Caution light', 'Arduino D12', 'Yellow LED Anode', '220 Ω', 'The pin gives 5 V (HIGH) to turn the LED on. The resistor limits the current so the LED survives.'],
+    ['Caution light', 'Yellow LED Cathode', '− rail (GND)', '', 'Return path to ground. Without it the loop is broken and the LED stays dark.'],
+    ['Stall light', 'Arduino D13', 'Red LED Anode', '220 Ω', 'Same idea as the yellow light: the pin gives 5 V, the resistor protects the LED.'],
+    ['Stall light', 'Red LED Cathode', '− rail (GND)', '', 'Return path to ground.'],
+    ['Stall horn', 'Arduino D8', 'Piezo Positive', '', 'Digital signal. tone() flips this pin on and off thousands of times a second.'],
+    ['Stall horn', 'Piezo Negative', '− rail (GND)', '', 'Return path to ground, so the piezo can complete its loop.'],
+  ],
+  code: `// MSN 03 - Stall Warning System
+// The knob is the angle of attack (AoA). Yellow at 12 degrees, red + horn at 15.
+
+const int AOA_PIN = A0;          // potentiometer wiper
+const int YELLOW_LED = 12;       // caution light
+const int RED_LED = 13;          // stall warning light
+const int BUZZER = 8;            // piezo horn
+
+const float CAUTION_AOA = 12.0;  // degrees
+const float STALL_AOA = 15.0;    // degrees (the critical angle)
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(YELLOW_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
+}
+
+void loop() {
+  int raw = analogRead(AOA_PIN);                       // 0 to 1023
+  float aoa = map(raw, 0, 1023, -50, 250) / 10.0;      // -5.0 to +25.0 degrees
+
+  Serial.print("AoA: ");
+  Serial.print(aoa, 1);
+  Serial.print(" deg | ");
+
+  if (aoa >= STALL_AOA) {                              // most serious check FIRST
+    digitalWrite(RED_LED, HIGH);
+    digitalWrite(YELLOW_LED, LOW);
+    tone(BUZZER, 2000);                                // continuous high horn
+    Serial.println("STALL!");
+  } else if (aoa >= CAUTION_AOA) {                     // only reached if NOT a stall
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(YELLOW_LED, HIGH);
+    tone(BUZZER, 800, 80);                             // short low beep
+    Serial.println("CAUTION");
+    delay(400);                                        // slow beeping
+  } else {
+    digitalWrite(RED_LED, LOW);
+    digitalWrite(YELLOW_LED, LOW);
+    noTone(BUZZER);
+    Serial.println("OK");
+  }
+  delay(50);
+}`,
+  explain: [
+    ['map(raw, 0, 1023, -50, 250) / 10.0', 'Rescales 0–1023 into −50…250, then divides by 10 to get −5.0° to +25.0° with one decimal. map() works out the straight-line relationship between the two ranges for you.'],
+    ['if (aoa >= STALL_AOA)', 'Checks the most serious condition first. If it is true, every other branch is skipped.'],
+    ['else if (aoa >= CAUTION_AOA)', 'Only checked when the stall test was false, so this really means “between 12° and 14.9°”.'],
+    ['tone(BUZZER, 2000)', 'Makes a 2000 Hz square wave on pin 8 until noTone() is called. Higher frequency = higher pitch.'],
+    ['tone(BUZZER, 800, 80)', 'An 800 Hz beep that stops by itself after 80 ms. The delay(400) afterwards spaces the beeps out.'],
+    ['noTone(BUZZER)', 'Stops the sound. Without it a horn would keep going after you leave the stall.'],
+  ],
+  practiceLead: 'A mini copy of your circuit running the same code. Drag the knob and listen. Your Tinkercad build should do the same.',
+  practiceHTML: `<div style="display:grid;gap:10px">
+      <label for="knob"><b>AoA knob</b> · analogRead = <span class="mono" id="rawV">512</span> · <span class="mono" id="aoaV">--</span></label>
+      <input id="knob" type="range" min="0" max="1023" value="512" aria-label="AoA knob">
+      <div class="units" style="grid-template-columns:repeat(3,1fr)"><div class="u"><i class="y" id="ly"></i>D12 · Yellow</div><div class="u"><i class="r" id="lr"></i>D13 · Red</div><div class="u"><i id="lb" style="background:#2a3038"></i>D8 · Piezo</div></div>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="snd"> <span>Hear the piezo (turn the volume down first!)</span></label>
+      <p class="mono" id="verdict" style="font-weight:700"></p></div>
+    <div><div class="mono dim" style="font-size:0.7rem;margin-bottom:4px">SERIAL MONITOR (what you should see)</div><div class="serial" id="serial"></div></div>`,
+  practiceInit($) {
+    const serial = []; let ctx = null, osc = null, gain = null, beepTimer = null;
+    function audio(f) {
+      if (!$('snd').checked) f = 0;
+      try {
+        if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); osc = ctx.createOscillator(); gain = ctx.createGain(); osc.type = 'square'; gain.gain.value = 0; osc.connect(gain); gain.connect(ctx.destination); osc.start(); }
+        if (ctx.state === 'suspended') ctx.resume();
+        if (f) { osc.frequency.value = f; gain.gain.value = 0.04; } else gain.gain.value = 0;
+      } catch (e) {}
+    }
+    function update() {
+      const raw = +$('knob').value;
+      const tenths = Math.floor((raw * 300) / 1023) - 50;               // same as the Arduino integer map(raw,0,1023,-50,250)
+      const aoa = tenths / 10;
+      const st = aoa >= 15 ? 'STALL!' : aoa >= 12 ? 'CAUTION' : 'OK';
+      $('rawV').textContent = raw; $('aoaV').textContent = aoa.toFixed(1) + '°';
+      $('ly').classList.toggle('on', st === 'CAUTION'); $('lr').classList.toggle('on', st === 'STALL!');
+      $('lb').style.background = st === 'STALL!' ? '#ff9a3d' : st === 'CAUTION' ? '#ffd23f' : '#2a3038';
+      $('verdict').textContent = st === 'STALL!' ? 'Red light + continuous 2000 Hz horn' : st === 'CAUTION' ? 'Yellow light + slow 800 Hz beep' : 'Lights off, silent';
+      clearInterval(beepTimer);
+      if (st === 'STALL!') audio(2000);
+      else if (st === 'CAUTION') { audio(800); setTimeout(() => audio(0), 80); beepTimer = setInterval(() => { audio(800); setTimeout(() => audio(0), 80); }, 450); }
+      else audio(0);
+      serial.push('AoA: ' + aoa.toFixed(1) + ' deg | ' + st); if (serial.length > 8) serial.shift();
+      $('serial').innerHTML = serial.map((s) => '<div>' + s + '</div>').join('');
+    }
+    $('knob').addEventListener('input', update); $('snd').addEventListener('change', update); update();
+  },
+  test: [
+    'Click <b>Start Simulation</b>, then open the <b>Serial Monitor</b>. Click the potentiometer and drag the slider slowly.',
+    '<b>Below 12°:</b> both lights off and no sound. The monitor says OK.',
+    '<b>From 12° to 14.9°:</b> yellow light and a slow, low beep. The monitor says CAUTION.',
+    '<b>15° and above:</b> red light and a continuous high tone. The monitor says STALL!',
+    'No sound? Check your computer volume. Tinkercad plays the piezo through your speakers.',
+  ],
+  doctor: [
+    ['No lights, no sound, nothing at all', 'The − rail is not wired to Arduino GND, or the simulation is not running.', 'Check the black rail wire from Step 1 and press Start Simulation.'],
+    ['The lights work but there is no sound', 'The piezo is on the wrong pin, or your volume is muted.', 'The piezo Positive pin must go to D8. Turn up the computer volume.'],
+    ['The knob changes nothing', 'The wiper (middle pin) is not on A0, or you used A1.', 'Move the wire to the MIDDLE pin of the potentiometer and to A0.'],
+    ['The caution/stall angles are the wrong way round', 'The 5V and GND wires on the potentiometer ends are swapped.', 'Swap them. The track is just read from the other end.'],
+    ['The red light never comes on, only yellow', 'The stall check was put AFTER the caution check, so caution “hides” the stall.', 'Re-paste the code. if (aoa >= STALL_AOA) must come first.'],
+    ['One LED never lights', 'That LED is backwards, or has no cathode wire.', 'Anode (bent leg) towards the resistor and pin, cathode to the GND rail.'],
+    ['An LED is super bright, then explodes', 'You forgot its 220 Ω resistor.', 'Add one between the pin and the anode.'],
+    ['Error when starting the simulation', 'A typo or a missing bracket from copy and paste.', 'Select all old code, paste again, and make sure the editor is in Text mode.'],
+  ],
+  bosses: [
+    ['Boss 1 · Faster beeps', 'Make the caution beep get faster as the angle approaches 15°. Hint: base the delay on <code>map(aoa * 10, 120, 150, 400, 100)</code>.'],
+    ['Boss 2 · Stick shaker', 'Add a servo that jiggles back and forth while the warning is on.'],
+    ['Boss 3 · Too negative', 'Some aircraft also warn when the AoA is far too negative. Add a check at −3°.'],
+  ],
+};
+</script>
+<script src="js/guide.js"></script>
+</body>
+</html>
