@@ -44,7 +44,19 @@
     if (via) mid = '<path d="M150 17 H208 l4 -9 l8 18 l8 -18 l8 18 l8 -18 l4 9 H330" fill="none" stroke="' + wc + '" stroke-width="3"/><text x="240" y="42" text-anchor="middle" font-size="9" fill="#ffb547" font-family="monospace">' + esc(via) + '</text>';
     return '<svg class="wsvg" viewBox="0 0 480 46" width="480" height="46" role="img" aria-label="' + esc(from + ' to ' + to) + '">' + pill(4, f, colour(from)) + mid + pill(330, t, colour(to)) + '</svg>';
   }
+  const STEPIMG = {
+    'tinkercad.html': { 1: 'step-rails', 2: 'step-m2-pot', 3: 'step-m2-leds' },
+    'tinkercad3.html': { 0: 'step-rails', 1: 'step-m3-pot', 2: 'step-m3-leds', 3: 'step-m3-piezo' },
+    'tinkercad4.html': { 0: 'step-rails', 1: 'step-m4-sensor', 2: 'step-m4-lcd' },
+  };
   function run() {
+    const page = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.step').forEach((st, i) => {
+      const n = (STEPIMG[page] || {})[i];
+      if (!n || st.querySelector('.stepimg')) return;
+      const b = st.querySelector('.body'); if (!b) return;
+      b.insertAdjacentHTML('beforeend', '<a class="stepimg" href="img/' + n + '.png" target="_blank"><img src="img/' + n + '.png" alt="Picture of this step" style="max-width:100%;border-radius:10px;border:1px solid var(--line)"></a>');
+    });
     document.querySelectorAll('.step .body').forEach((b) => {
       if (b.querySelector('.vrow')) return;
       const keys = find(b.textContent);
