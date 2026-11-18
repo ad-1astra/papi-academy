@@ -32,6 +32,7 @@
   // wires
   add(sec('Part 2', 'Every wire, and why it is there'));
   add(el('p', 'lead', 'Hover over a pin in Tinkercad to see its name. Tick each wire when it is drawn. Read the “why”, because every wire has a reason.'));
+  if (G.img) add(el('div', '', '<p class="lead"><b>The finished wiring, in one picture:</b></p><p><a href="img/' + G.img + '.png" target="_blank"><img src="img/' + G.img + '.png" alt="Correct wiring diagram" style="max-width:100%;border-radius:10px;border:1px solid var(--line)"></a><br><a class="ac-btn ghost small" href="img/' + G.img + '.png" download>Download picture</a></p>'));
   const wiresEl = add(el('div')); wiresEl.style.cssText = 'display: grid; gap: 8px';
 
   // code
